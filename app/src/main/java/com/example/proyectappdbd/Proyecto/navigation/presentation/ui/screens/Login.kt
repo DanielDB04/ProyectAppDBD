@@ -1,4 +1,4 @@
-package com.example.proyectappdbd.Proyecto
+package com.example.proyectappdbd.Proyecto.navigation.presentation.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,14 +22,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.proyectappdbd.R
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectappdbd.Proyecto.navigation.presentation.viewmodel.LoginScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Login() {
-    var nombreUsuario by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun Login(loginScreenViewModel: LoginScreenViewModel = viewModel()) {
+    val username by loginScreenViewModel.username.collectAsState()
+    val password by loginScreenViewModel.password.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
-
+    val loginEnabled by remember {
+        derivedStateOf {
+            username.isNotBlank() && password.isNotBlank()
+        }
+    }
     Scaffold(
         content = { innerPadding ->
             Column(
@@ -44,7 +50,7 @@ fun Login() {
 
                 // LOGO (ahora más arriba)
                 Image(
-                    painter = painterResource(id = R.drawable.logodos),
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = "Logo de la aplicación",
                     modifier = Modifier
                         .size(400.dp)
@@ -65,8 +71,8 @@ fun Login() {
 
                 // CAMPO DE USER
                 TextField(
-                    value = nombreUsuario,
-                    onValueChange = { nombreUsuario = it },
+                    value = username,
+                    onValueChange = { loginScreenViewModel.setUsername(it) },
                     label = { Text("Nombre de usuario") },
                     leadingIcon = {
                         Icon(
@@ -83,7 +89,7 @@ fun Login() {
                 // CAMPO DE PASSWORD
                 TextField(
                     value = password,
-                    onValueChange = { newPassword -> password = newPassword },
+                    onValueChange = { loginScreenViewModel.setPassword(it) },
                     label = { Text("Contraseña") },
                     visualTransformation = if (passwordVisible)
                         VisualTransformation.None else PasswordVisualTransformation(),
@@ -111,25 +117,24 @@ fun Login() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(onClick = {
-                        // Acción de login
-                    }) {
+                    Button(
+                        onClick = {
+                            // Acción de login
+                        }, enabled = loginEnabled,
+                    ) {
                         Text("Aceptar")
                     }
 
                     Button(
                         onClick = {
-                            nombreUsuario = ""
-                            password = ""
+                            loginScreenViewModel.clear()
                         },
                     ) {
                         Text("Limpiar")
                     }
 
                     OutlinedButton(
-                        onClick = {
-                            // Acción de registrarse
-                        }
+                        onClick = {}
                     ) {
                         Text("Registrarse")
                     }

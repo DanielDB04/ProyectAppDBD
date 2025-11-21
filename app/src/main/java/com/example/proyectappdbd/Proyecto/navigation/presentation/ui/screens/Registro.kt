@@ -1,4 +1,4 @@
-package com.example.proyectappdbd.Proyecto
+package com.example.proyectappdbd.Proyecto.navigation.presentation.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,21 +23,35 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectappdbd.Proyecto.navigation.presentation.viewmodel.RegistroScreenViewModel
 import com.example.proyectappdbd.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Registro() {
-    var nombreUsuario by remember { mutableStateOf("") }
+fun Registro(registroScreenViewModel: RegistroScreenViewModel = viewModel()) {
+    val username by registroScreenViewModel.username.collectAsState()
+    val password by registroScreenViewModel.password.collectAsState()
+
     var passwordVisible_one by remember { mutableStateOf(false) }
     var passwordVisible_two by remember { mutableStateOf(false) }
-    var password by remember { mutableStateOf("") }
+
     var repitpassword by remember { mutableStateOf("") }
-    var nombre by remember { mutableStateOf("") }
-    var apellidos by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    val name by registroScreenViewModel.name.collectAsState()
+    val surname by registroScreenViewModel.surname.collectAsState()
+    val email by registroScreenViewModel.email.collectAsState()
     val genero = listOf("Masculino", "Femenino")
+
     var selectedOption by remember { mutableStateOf<String?>(null) }
+
+    val isLoginEnable by remember {
+        derivedStateOf {
+            username.isNotBlank() && password.isNotBlank() &&
+                    repitpassword.isNotBlank() && email.isNotBlank()
+                    && name.isNotBlank() && surname.isNotBlank()
+
+        }
+    }
 
     Scaffold(
         content = { innerPadding ->
@@ -51,10 +65,10 @@ fun Registro() {
             ) {
                 // LOGO
                 Image(
-                    painter = painterResource(id = R.drawable.logodos),
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = "Logo ",
                     modifier = Modifier
-                        .size(200.dp)
+                        .size(250.dp)
                         .padding(bottom = 16.dp)
                 )
 
@@ -68,8 +82,8 @@ fun Registro() {
 
                 // User
                 TextField(
-                    value = nombreUsuario,
-                    onValueChange = { nombreUsuario = it },
+                    value = username,
+                    onValueChange = { registroScreenViewModel.setUsername(it) },
                     label = { Text("Nombre de Usuario") },
                     leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
                     singleLine = true,
@@ -81,7 +95,7 @@ fun Registro() {
                 // Password
                 TextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { registroScreenViewModel.setPassword(it) },
                     label = { Text("Contraseña") },
                     visualTransformation = if (passwordVisible_one) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -119,8 +133,8 @@ fun Registro() {
                 // Nombre y apellidos
                 Row {
                     TextField(
-                        value = nombre,
-                        onValueChange = { nombre = it },
+                        value = name,
+                        onValueChange = { registroScreenViewModel.setName(it) },
                         label = { Text("Nombre") },
                         singleLine = true,
                         modifier = Modifier
@@ -128,8 +142,8 @@ fun Registro() {
                             .padding(2.dp)
                     )
                     TextField(
-                        value = apellidos,
-                        onValueChange = { apellidos = it },
+                        value = surname,
+                        onValueChange = { registroScreenViewModel.setSurname(it) },
                         label = { Text("Apellidos") },
                         singleLine = true,
                         modifier = Modifier
@@ -142,7 +156,7 @@ fun Registro() {
                 // Correo
                 TextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = { registroScreenViewModel.setEmail(it) },
                     label = { Text("Correo electrónico") },
                     leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
                     singleLine = true,
@@ -188,10 +202,14 @@ fun Registro() {
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(onClick = { /*Aceptar*/ }) {
+                    Button(onClick = { },
+                        enabled = isLoginEnable
+                        ) {
                         Text("Aceptar")
                     }
-                    Button(onClick = { /*Cancelar*/ }) {
+                    Button(onClick = {
+                        registroScreenViewModel.clear()
+                    }) {
                         Text("Cancelar")
                     }
                 }
